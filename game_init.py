@@ -1,6 +1,6 @@
 import sys
 import pygame
-from configs import PATH
+from configs import PATH, VISION_RATIO, SCENE_RATIO, COLUMN_RATIO, ARROW_RATIO, COLUMN_NUM, FADE_TIME
 
 
 ################ 游戏初始化 ################
@@ -11,20 +11,31 @@ class GameCore:
     def __init__(self, window_width, window_height):
         # 初始化pygame
         pygame.init()
+        pygame.mixer.init()
         # 确保中文正常显示
         pygame.font.init()
+        # 尺寸比例常数
+        self.ratio_vision = VISION_RATIO
+        self.ratio_scene = SCENE_RATIO
+        self.ratio_column = COLUMN_RATIO
+        self.ratio_arrow = ARROW_RATIO
+        print(f'\n[Init]  VISION_RATIO = {int(self.ratio_vision*720)}:720')
+        print(f'[Init]  SCENE_RATIO = {int(self.ratio_scene*720)}:720')
+        print(f'[Init]  COLUMN_RATIO = {int(self.ratio_column*720)}:720')
+        print(f'[Init]  ARROW_RATIO = {self.ratio_arrow}')
+        # 淡入/淡出时间（秒）
+        self.fade_time = FADE_TIME
+        print(f'\n[Init]  FADE_TIME = {self.fade_time}')
+        # 道具栏个数
+        self.item_column_num = COLUMN_NUM
+        print(f'\n[Init]  COLUMN_NUM = {self.item_column_num}')
         # 创建屏幕
         self.window_size = window_width, window_height
         self.window = pygame.display.set_mode(self.window_size, flags=pygame.RESIZABLE)
         pygame.display.set_caption("弦内之音")
         self.full_screen_size = pygame.display.list_modes()[0]
         self.full_screen = False
-        # 尺寸比例常数
-        self.KSC = 1.5 # main scene
-        self.KAR = 1.7 # left/right button
-        self.KD = 0.88 # scene and column
-        # 时间常数/s
-        self.fade_time = 0.3
+        print(f'\n[Init]  initial window size = {self.window_size}\n[Init]  full screen size = {self.full_screen_size}')
         # 游戏元素名称
         self.names = {'scene': ['black', 'title_pic', 'band_photo', 'frame',
                                 'wall_door', 'zoom_photo', 'zoom_peephole',
@@ -37,13 +48,14 @@ class GameCore:
                                   'radio_empty', 'radio_with_tape', 'drawer_open', 'shelf_with_book', 'shelf_no_book', 'chest_close', 'chest_open',
                                   'music_book', 'key', 'knife', 'tape', 'instrument_pics', 'my_photo', 'plectrum', 'string', 'letter'] + \
                                  [f'guitar_{i}' for i in range(2,7)],
-                      'item' : ['music_book', 'key', 'knife', 'tape', 'instrument_pics', 'my_photo', 'plectrum', 'string', 'guitar', 'letter'],
+                      'item' : ['music_book', 'music_book_open', 'key', 'knife', 'tape', 'instrument_pics', 'my_photo', 'plectrum', 'string', 'guitar', 'letter'],
                       'icon' : ['button', 'menu', 'go_left', 'go_right', 'go_back', 'go_back_white'] + [f'note_{i}' for i in range(4)]
                       }
+        print('\n[Init]  Generating all names of elements success.')
         # 初始化游戏状态
         self.load_images()
-        self.game_started = False
         self.initialize_state()
+        self.game_started = False
     
     #======== 初始化游戏参数 ========#
     def initialize_state(self):
@@ -52,9 +64,8 @@ class GameCore:
         self.current_scene = 'menu'
         self.saved_scene = None
         self.next_scene = None
-        self.items_column_num = 8
-        self.items_column = [None] * self.items_column_num
-        self.chosen_item = None
+        self.item_column = [None] * self.item_column_num
+        self.chosen_column = None
         self.showing_detail = None
         self.got_items = {}
         for name in self.names['item']:
@@ -88,9 +99,12 @@ class GameCore:
         self.num_string_on_guitar = 2
         # 信中密码-开门
         self.door_unlocked = False
+        ###
+        print('\n[Init]  Initializing all game parameters success.')
     
     #======== 加载图片资源 ========#
     def load_images(self):
+        print('\n[Init]  Loading images ...')
         self.images = {}
         for kind in self.names:
             for name in self.names[kind]:
@@ -99,7 +113,20 @@ class GameCore:
                     image = pygame.image.load(PATH+f'figs/{name}.png').convert_alpha()
                     self.images[name] = image
                 except Exception as e:
-                    print('Imgae loading error:', e)
+                    print(f'[Imgae loading error]  {e}')
+        print('[Init]  Loading images success.')
+    
+    #======== 加载音乐资源 ========#
+    def load_musics(self):
+        print('\n[Init]  Loading musics ...')
+        self.sounds = {}
+        for name in ['bgm_rock', 'bgm_beethoven']:
+            try:
+                sound = pygame.mixer.Sound(PATH+'musics/'+name+'.mp3')
+                self.sounds[name] = sound
+            except Exception as e:
+                print(f'[Music loading error]  {e}')
+        print('[Init]  Loading musics success.')
 
 
 ##########################################################
