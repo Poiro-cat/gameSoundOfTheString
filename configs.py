@@ -1,9 +1,17 @@
 # 资源路径
 PATH = "D:/文档/Programs/Game_SoundOfTheString/SOTS/"
 
-# 默认窗口大小
-WINDOW_WIDTH = 1080
-WINDOW_HEIGHT = 720
+# 尺寸比例
+VISION_RATIO = 1280/720
+SCENE_RATIO = 1190/720
+COLUMN_RATIO = 60/720
+ARROW_RATIO = 1.7
+
+# 道具栏个数
+COLUMN_NUM = 9
+
+# 淡入/淡出时间
+FADE_TIME = 0.3
 
 # 颜色定义
 WHITE = (255, 255, 255)
