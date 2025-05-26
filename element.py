@@ -50,6 +50,41 @@ class Element():
         self.update_pos()
 '''
 
+class Point():
+    def __init__(self, x=0, y=0, equal=False):
+        if type(x) == tuple:
+            self.x = x[0]
+            self.y = x[1]
+        else:
+            self.x = x
+            self.y = y
+        if equal: self.y = self.x
+    def p(self):
+        return self.x, self.y
+    def __add__(self, other):
+        res = Point(self.x, self.y)
+        if type(other) == Point:
+            res.x += other.x
+            res.y += other.y
+        else:
+            res.x += other
+            res.y += other
+        return res
+    def __radd__(self, other):
+        return self + other
+    def __neg__(self):
+        return Point(-self.x, -self.y)
+    def __sub__(self, other):
+        return self + (-other)
+    def __rsub__(self, other):
+        return other + (-self)
+    def __mul__(self, a):
+        return Point(a*self.x, a*self.y)
+    def __rmul__(self, a):
+        return self * a
+    def __truediv__(self, a):
+        return Point(self.x / a, self.y / a)
+
 
 class GameElement:
     def __init__(self, shape, *pos):
@@ -69,13 +104,16 @@ class GameElement:
         if self.shape == 'poly': self.center = None
     
     def flatten(self, pos):
-        if type(pos) not in [list,tuple]: return pos
+        if type(pos) not in [list,tuple,Point]: return pos
         pos_ = list(pos)
         i = 0
         while i < len(pos_):
             if type(pos_[i]) in [list,tuple]:
                 pi = self.flatten(pos_[i])
                 pos_ = pos_[:i] + pi + pos_[i+1:]
+            elif type(pos_[i]) == Point:
+                pos_ = pos_[:i] + [pos_[i].x, pos_[i].y] + pos_[i+1:]
+                i += 2
             else: i += 1
         if i == len(pos_): return pos_
     
@@ -119,7 +157,7 @@ if __name__ == '__main__':
     print(ele.top, ele.bottom, ele.cy, ele.height)
     '''
     
-    a = GameElement('a', 3, 5, (7,9,(11,12),(0,1,(4,(5,6),7,2)), 4), [2,4], -8, [9,(11,4),[69,(14,[125,26])]])
+    a = GameElement('a', 3, 5, (7,'my',(11,12),(0,1,(4,Point(5,6),7,2)), 4), [2,4], -8, [Point(111, -29), ('test',4),[69,(14,[125,26])]])
     print(a.pos)
     
     
