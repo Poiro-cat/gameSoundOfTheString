@@ -11,11 +11,13 @@ class GameRun(GameDisplay):
     #======== 运行 ========#
     def run(self):
         self.initialize_state()
+        self.play_music('rock', -1, 0.1)
         ###
         self.game_started = True
-        self.current_scene = 'zoom_cupboard'
-        self.cupboard_unlocked = True
-        #self.items_column[1] = 'knife'
+        self.play_music('beethoven', -1, 0.2)
+        self.current_scene = 'wall_desk'
+        #self.band_photo_complete = True
+        self.item_column[:4] = ['plectrum']*3 + ['music_book']
         ###
         self.clock = pygame.time.Clock()
         running = True
@@ -41,7 +43,7 @@ class GameRun(GameDisplay):
 
 if __name__ == "__main__":
     try:
-        game = GameRun(1080, 750)
+        game = GameRun(1280, 720)
         game.run()
     except Exception as e:
         print('Error info:', e)
